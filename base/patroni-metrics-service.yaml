@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: patroni-metrics
+  namespace: postgres-operator
+  labels:
+    app: patroni
+spec:
+  selector:
+    patroni: "true"           # Make sure Patroni pods have this label
+  ports:
+    - name: https-metrics
+      port: 8008               # Patroni metrics port
+      targetPort: 8008
+

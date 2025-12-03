@@ -1,0 +1,24 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: patroni-servicemonitor
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: patroni
+  namespaceSelector:
+    matchNames:
+      - postgres-operator
+        #endpoints:
+        #- port: metrics
+        #interval: 15s
+
+  endpoints:
+    - port: https-metrics
+      scheme: https       # <--- important!
+      interval: 15s
+      tlsConfig:
+        insecureSkipVerify: true  # since Patroni uses self-signed certs

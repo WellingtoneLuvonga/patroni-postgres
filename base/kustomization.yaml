@@ -1,0 +1,7 @@
+resources:
+  - patroni-alerts-prometheusrule.yaml
+  - patroni-metrics-service.yaml
+  - patroni-servicemonitor.yaml
+  - postgres-exporter-servicemonitor.yaml
+  - postgres-exporter-service.yaml
+

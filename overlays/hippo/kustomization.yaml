@@ -1,0 +1,9 @@
+resources:
+  - ../../base
+
+patches:
+  - path: patch-alerts.yaml
+    target:
+      kind: PrometheusRule
+      name: patroni-alerts
+

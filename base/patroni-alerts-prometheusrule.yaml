@@ -1,0 +1,53 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: patroni-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: patroni_rules
+      rules:
+        - alert: NoPrimaryNode
+          expr: sum by (scope) (patroni_primary) == 0
+          for: 30s
+          labels:
+            team: dba
+            namespace: default
+          annotations:
+            summary: "No Patroni primary detected in {{ $labels.scope }} cluster"
+            description: "All Patroni nodes in the {{ $labels.scope }} cluster are replicas or unreachable."
+            priority: P1
+
+        - alert: PatroniMultipleLeaders
+          expr: sum by (scope) (patroni_primary) > 1
+          for: 30s
+          labels:
+            team: dba
+            namespace: default
+          annotations:
+            summary: "Multiple Patroni leaders detected in {{ $labels.scope }}"
+            description: "More than one Patroni node is reporting as the leader for cluster {{ $labels.scope }} (split-brain condition)."
+            priority: p1
+
+        - alert: PatroniReplicationLagHigh
+          expr: (patroni_xlog_location - patroni_xlog_replayed_location) > 268435456 and on(instance) (patroni_primary == 0)
+          for: 30s
+          labels:
+            team: dba
+            namespace: default
+          annotations:
+            summary: "High replication lag on {{ $labels.name }} in {{ $labels.scope }}"
+            description: "WAL lag on replica {{ $labels.name }} in cluster {{ $labels.scope }} has exceeded 256MB."
+            priority: p3
+        - alert: PatroniNodeDown
+          expr: up{job="patroni-metrics"} != 1
+          for: 30s
+          labels:
+            team: dba
+            namespace: default
+          annotations:
+            summary: "Patroni node down"
+            description: "Prometheus cannot scrape metrics from {{ $labels.instance }}. The node may be offline."
+            priority: p1
