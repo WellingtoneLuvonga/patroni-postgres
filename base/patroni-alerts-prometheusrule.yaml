@@ -21,7 +21,7 @@ spec:
             priority: P1
 
         - alert: PatroniMultipleLeaders
-          expr: sum by (scope) (patroni_primary) > 1
+          expr: sum by (scope) (patroni_primary) > 0
           for: 30s
           labels:
             team: dba
